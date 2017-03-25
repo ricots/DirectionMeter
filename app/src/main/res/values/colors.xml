@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#f44336</color>
+    <color name="colorPrimaryDark">#f44336</color>
+    <color name="colorAccent">#f44336</color>
+
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorTranslucent">#6ec9d2d2</color>
+    <color name="colorMask">#6e000000</color>
+    <color name="colorOffWhite">#faf4f4</color>
+    <color name="colorLoadMore">@color/colorWhite</color>
+
+    <color name="badgeOrange">#ff9900</color>
+    <color name="badgeGray">#4e4c4a</color>
+    <color name="badgeGreen">#4aff21</color>
+
+    <color name="login_btn_facebook">#3b5998</color>
+    <color name="login_btn_google">#db4437</color>
+
+    <color name="successColor">#64dd17</color>
+    <color name="failColor">#e53935</color>
+
+    <color name="bright_pink">#FF007F</color>
+    <color name="red">#FF0000</color>
+    <color name="orange">#FF7F00</color>
+    <color name="chartreuse">#7FFF00</color>
+    <color name="green">#00FF00</color>
+    <color name="azure">#007fff</color>
+    <color name="blue">#0000FF</color>
+    <color name="violet">#7F00FF</color>
+
+    <string-array name="rainbow">
+        <item>@color/bright_pink</item>
+        <item>@color/red</item>
+        <item>@color/orange</item>
+        <item>@color/chartreuse</item>
+        <item>@color/green</item>
+        <item>@color/azure</item>
+        <item>@color/blue</item>
+        <item>@color/violet</item>
+    </string-array>
+</resources>

@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Direction Meter</string>
+    <string name="google_maps_key">AIzaSyBPXdxroGarGfGjVyXVJOEuJCD4YWPVKhw</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3644397642556359/9270626627</string>
+    <string name="interstitial_ad_unit_id">ca-app-pub-3644397642556359/1747359829</string>
+
+    <string name="txt_exit_app">Exit App?</string>
+    <string name="txt_wait">Please Wait</string>
+
+    <string name="camera_error">This device doesn\'t support Camera.</string>
+
+    <string name="txt_location_dialog_title">Location Service</string>
+    <string name="txt_location_dialog_body">GPS is disabled in your device. Enable it?</string>
+    <string name="txt_location_dialog_desc">You have disabled Location Services on your device. We need your location to determine the position of your friends relative to your\'s</string>
+    <string name="txt_required_sensors">You don\'t have required sensors on your device. We need them to determine your location accurately.</string>
+
+    <string name="txt_location_dialog_ok">Enable GPS</string>
+    <string name="txt_location_dialog_cancel">Cancel</string>
+    <string name="txt_ok">OK</string>
+
+    <string name="txt_something_wrong">Something went wrong, Please try again later.</string>
+
+    <string name="txt_no_location">Could Not Fetch Your Location!</string>
+    <string name="action_howto">How to use?</string>
+
+    <string name="txt_how_to">How to use\?\n\n1.Open the app and choose between sun or moon.\n\n2.a) If green mark displaying Altitude is above 0 degrees, point your device upwards towards sky.\n\n2.b) If green mark displaying Altitude is below 0 degrees, point your device downwards towards floor.\n\n3.Move your device from left to right until direction arrows disappear.\n\n4.Adjust the curser to match the green mark, until container appears.\n\n5.Once the container has appeared and matched the right Azimuth and Altitude, it will display \'Located!\' message on screen.\n\n6. You have successfully located Sun/Moon on sky.</string>
+
+    <string name="action_logout">Logout</string>
+    <string name="msg_logout_confirm">Log out?</string>
+    <string name="msg_exit">Exit App?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="txt_okay">Ok</string>
+    <string name="txt_location_access" translatable="false">Location Access</string>
+    <string name="txt_location_info" translatable="false">You must enable location services to send your location updates to our server.</string>
+
+
+</resources>
