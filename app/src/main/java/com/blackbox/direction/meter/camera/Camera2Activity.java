@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -37,6 +36,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -64,7 +64,6 @@ import com.blackbox.direction.meter.R;
 import com.blackbox.direction.meter.models.TargetLocation;
 import com.blackbox.direction.meter.utils.Constants;
 import com.blackbox.direction.meter.utils.GeoLocationService;
-import com.blackbox.direction.meter.utils.Preference;
 import com.blackbox.direction.meter.utils.Utils;
 import com.blackbox.direction.meter.views.LockView;
 import com.google.android.gms.ads.AdListener;
@@ -76,6 +75,9 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlacePhotoMetadata;
 import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
@@ -104,7 +106,7 @@ import io.reactivex.functions.Consumer;
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Activity extends AppCompatActivity
         implements View.OnClickListener
-        , SensorEventListener, GoogleApiClient.OnConnectionFailedListener {
+        , SensorEventListener, GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleApiClient.ConnectionCallbacks {
 
     private static final int CAMERA_REQUEST_CODE = 1;
 
@@ -121,6 +123,8 @@ public class Camera2Activity extends AppCompatActivity
     InterstitialAd mInterstitialAd;
     RxPermissions rxPermissions;
 
+    boolean useFusedLocation = false;
+    double latitude, longitude;
     int year;
     int month;
     int day;
@@ -131,7 +135,13 @@ public class Camera2Activity extends AppCompatActivity
     float bearing;
     TargetLocation targetLocation;
 
-    GoogleApiClient mGoogleApiClient;
+    //Location Updates
+    public static long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    public static long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 500;
+    protected GoogleApiClient mGoogleApiClient;
+    protected LocationRequest mLocationRequest;
+    protected Location mCurrentLocation;
+
     PlacePicker.IntentBuilder builder;
     Intent placeIntent;
     int PLACE_PICKER_REQUEST = 2;
@@ -463,9 +473,9 @@ public class Camera2Activity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Location location = intent.getParcelableExtra(GeoLocationService.LOCATION_DATA);
-            Preference.save(Camera2Activity.this, Constants.SP_LATITUDE, Utils.getFormattedDouble(location.getLatitude()));
-            Preference.save(Camera2Activity.this, Constants.SP_LONGITUDE, Utils.getFormattedDouble(location.getLongitude()));
-            Log.i(TAG, "Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            Log.i(TAG, "GPS Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
             if (targetLocation != null) {
                 getLocation(targetLocation.getLatitude(), targetLocation.getLongitude());
             }
@@ -495,10 +505,14 @@ public class Camera2Activity extends AppCompatActivity
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
+                .addConnectionCallbacks(this)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
+                .addApi(LocationServices.API)
                 .enableAutoManage(this, this)
                 .build();
+
+        createLocationRequest();
 
         builder = new PlacePicker.IntentBuilder();
         try {
@@ -595,7 +609,7 @@ public class Camera2Activity extends AppCompatActivity
                 targetLocation.setLongitude(place.getLatLng().longitude);
                 getLocation(place.getLatLng().latitude, place.getLatLng().longitude);
 
-                Places.GeoDataApi.getPlacePhotos(mGoogleApiClient, place.getId())
+                /*Places.GeoDataApi.getPlacePhotos(mGoogleApiClient, place.getId())
                         .setResultCallback(new ResultCallback<PlacePhotoMetadataResult>() {
                             @Override
                             public void onResult(PlacePhotoMetadataResult photos) {
@@ -607,21 +621,20 @@ public class Camera2Activity extends AppCompatActivity
                                     photoMetadataBuffer.release();
                                 }
                             }
-                        });
+                        });*/
 
             }
         }
     }
 
-    private void getLocation(double latitude, double longitude) {
+    private void getLocation(double mLat, double mLong) {
         try {
             try {
                 try {
-                    float lat = Preference.getFloat(this, Constants.SP_LATITUDE, Float.MAX_VALUE);
-                    float lon = Preference.getFloat(this, Constants.SP_LONGITUDE, Float.MAX_VALUE);
 
-                    targetLocation.setBearing((int) Utils.bearing(latitude, longitude, lat, lon));
-                    targetLocation.setDistance(Utils.distance(latitude, longitude, lat, lon, "K"));
+
+                    targetLocation.setBearing((int) Utils.bearing(latitude, longitude, mLat, mLong));
+                    targetLocation.setDistance(Utils.distance(latitude, longitude, mLat, mLong, "K"));
 
                     bearing = targetLocation.getBearing();
                     Log.i(TAG, "Compass: " + bearing);
@@ -675,16 +688,9 @@ public class Camera2Activity extends AppCompatActivity
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
 
-            // how long the animation will take place
-            ra.setDuration(200);
-
-            // set the animation after the end of the reservation status
+            ra.setDuration(250);
             ra.setFillAfter(true);
-            ra.setInterpolator(new LinearInterpolator());
-
-            // Start the animation
             meterView.startAnimation(ra);
-            //bearing = -degree;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1061,6 +1067,45 @@ public class Camera2Activity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "Connected");
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if (useFusedLocation)
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        Log.i(TAG, "Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
+        if (targetLocation != null) {
+            getLocation(targetLocation.getLatitude(), targetLocation.getLongitude());
+        }
+    }
+
+
     private static class ImageSaver implements Runnable {
 
         private final Image mImage;
@@ -1108,6 +1153,14 @@ public class Camera2Activity extends AppCompatActivity
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         GeoLocationService.stop(this);
         super.onDestroy();
@@ -1123,10 +1176,22 @@ public class Camera2Activity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocationUpdateMessageReceiver,
                 new IntentFilter(GeoLocationService.LOCATION_UPDATE));
 
+        if (mGoogleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+
         if (mTextureView.isAvailable()) {
             openCamera(mTextureView.getWidth(), mTextureView.getHeight());
         } else {
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
         }
     }
 
@@ -1143,7 +1208,14 @@ public class Camera2Activity extends AppCompatActivity
         stopBackgroundThread();
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationUpdateMessageReceiver);
+        if (mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
+        }
 
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     @Override

@@ -216,15 +216,21 @@ public class LockView extends View {
                         float stopX = paddingLeft + pixDeg * (i - minDegrees);
                         float stopY = y + 30;
 
-                        float w = (mTextPaint.measureText(targetName)/2)+15;
+                        float w1 = (mTextPaint.measureText(targetName) / 2) + 15;
+                        float w2 = (mTextPaint.measureText(targetDistance)) + 15;
+                        float w = 0.0f;
+                        if (w1 > w2)
+                            w = w1;
+                        else
+                            w = w2;
+
                         float textSize = mTextPaint.getTextSize();
                        /* drawTextAndBreakLine(canvas, mTextPaint, x,
                                 y, w, targetName);*/
 
                         mContainer.setColor(Color.parseColor(tl.getBgColor()));
 
-                        targetList.setPaddingTop(90);
-                        drawItems(canvas, x, y + targetList.getPaddingTop(), startX, startY, stopX, stopY + 220, w, textSize);
+                        drawItems(canvas, x, y, startX, startY, stopX, stopY, w, textSize);
                     }
                 }
             }
@@ -248,7 +254,7 @@ public class LockView extends View {
             textToDisplay = textToDisplay.substring(nextPos, textToDisplay.length());
             canvas.drawText(tempText, x, lastY, paint);
             lastY += textHeight;
-        } while(nextPos < lengthBeforeBreak);
+        } while (nextPos < lengthBeforeBreak);
     }
 
     private void drawItems(Canvas canvas, float x, float y, float startX, float startY, float stopX, float stopY, float w, float textSize) {

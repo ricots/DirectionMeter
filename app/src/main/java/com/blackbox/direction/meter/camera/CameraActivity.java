@@ -44,7 +44,6 @@ import com.blackbox.direction.meter.R;
 import com.blackbox.direction.meter.models.TargetLocation;
 import com.blackbox.direction.meter.utils.Constants;
 import com.blackbox.direction.meter.utils.GeoLocationService;
-import com.blackbox.direction.meter.utils.Preference;
 import com.blackbox.direction.meter.utils.Utils;
 import com.blackbox.direction.meter.views.LockView;
 import com.google.android.gms.ads.AdListener;
@@ -67,7 +66,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback,
-        View.OnClickListener, SensorEventListener,GoogleApiClient.OnConnectionFailedListener {
+        View.OnClickListener, SensorEventListener, GoogleApiClient.OnConnectionFailedListener {
 
 
     private Context context;
@@ -122,9 +121,9 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         @Override
         public void onReceive(Context context, Intent intent) {
             Location location = intent.getParcelableExtra(GeoLocationService.LOCATION_DATA);
-            Preference.save(CameraActivity.this, Constants.SP_LATITUDE, Utils.getFormattedDouble(location.getLatitude()));
-            Preference.save(CameraActivity.this, Constants.SP_LONGITUDE, Utils.getFormattedDouble(location.getLongitude()));
-            Log.i(TAG, "Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            Log.i(TAG, "GPS Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
             if (targetLocation != null) {
                 getLocation(targetLocation.getLatitude(), targetLocation.getLongitude());
             }
@@ -351,15 +350,14 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         }
     }
 
-    private void getLocation(double latitude, double longitude) {
+    private void getLocation(double mLat, double mLong) {
         try {
             try {
                 try {
-                    float lat = Preference.getFloat(this, Constants.SP_LATITUDE, Float.MAX_VALUE);
-                    float lon = Preference.getFloat(this, Constants.SP_LONGITUDE, Float.MAX_VALUE);
 
-                    targetLocation.setBearing((int) Utils.bearing(latitude, longitude, lat, lon));
-                    targetLocation.setDistance(Utils.distance(latitude, longitude, lat, lon, "K"));
+
+                    targetLocation.setBearing((int) Utils.bearing(latitude, longitude, mLat, mLong));
+                    targetLocation.setDistance(Utils.distance(latitude, longitude, mLat, mLong, "K"));
 
                     bearing = targetLocation.getBearing();
                     Log.i(TAG, "Compass: " + bearing);
@@ -413,16 +411,9 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
 
-            // how long the animation will take place
-            ra.setDuration(200);
-
-            // set the animation after the end of the reservation status
+            ra.setDuration(250);
             ra.setFillAfter(true);
-            ra.setInterpolator(new LinearInterpolator());
-
-            // Start the animation
             meterView.startAnimation(ra);
-            //bearing = -degree;
 
         } catch (Exception e) {
             e.printStackTrace();
