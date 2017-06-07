@@ -125,12 +125,6 @@ public class Camera2Activity extends AppCompatActivity
 
     boolean useFusedLocation = false;
     double latitude, longitude;
-    int year;
-    int month;
-    int day;
-    int hour;
-    int min;
-    int sec;
     float deviceAzimuth, devicePitch, deviceRoll;
     float bearing;
     TargetLocation targetLocation;
@@ -140,7 +134,6 @@ public class Camera2Activity extends AppCompatActivity
     public static long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 500;
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest mLocationRequest;
-    protected Location mCurrentLocation;
 
     PlacePicker.IntentBuilder builder;
     Intent placeIntent;
@@ -151,8 +144,6 @@ public class Camera2Activity extends AppCompatActivity
     private Sensor orientatonSensor;
     boolean haveOrientationSensor = false;
 
-    //Move Curser
-    public float xmax, ymax;
 
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -523,14 +514,6 @@ public class Camera2Activity extends AppCompatActivity
             e.printStackTrace();
         }
 
-        //Calculate Boundry
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        xmax = (float) metrics.widthPixels - 120;
-        ymax = (float) metrics.heightPixels - 120;
-
-
         mTextureView = (TextureView) findViewById(R.id.texture);
         meterView = (AppCompatImageView) findViewById(R.id.meter_view);
         btn_add_places = (FloatingActionButton) findViewById(R.id.fab_add);
@@ -546,15 +529,6 @@ public class Camera2Activity extends AppCompatActivity
                 }
             }
         });
-
-        Calendar today = Calendar.getInstance();
-        year = today.get(Calendar.YEAR);
-        month = today.get(Calendar.MONTH) + 1;
-        day = today.get(Calendar.DAY_OF_MONTH);
-        hour = today.get(Calendar.HOUR_OF_DAY);
-        min = today.get(Calendar.MINUTE);
-        sec = today.get(Calendar.SECOND);
-
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);

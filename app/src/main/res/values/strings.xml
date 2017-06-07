@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Direction Meter</string>
+    <string name="app_name">Simple Location Compass</string>
     <string name="google_maps_key">AIzaSyBPXdxroGarGfGjVyXVJOEuJCD4YWPVKhw</string>
     <string name="banner_ad_unit_id">ca-app-pub-3644397642556359/9270626627</string>
     <string name="interstitial_ad_unit_id">ca-app-pub-3644397642556359/1747359829</string>
@@ -17,6 +17,7 @@
     <string name="txt_location_dialog_ok">Enable GPS</string>
     <string name="txt_location_dialog_cancel">Cancel</string>
     <string name="txt_ok">OK</string>
+    <string name="txt_progress">Calculating distance and direction..please wait..</string>
 
     <string name="txt_something_wrong">Something went wrong, Please try again later.</string>
 
